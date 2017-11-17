@@ -1,6 +1,8 @@
 package com.herocc.school.aspencheck.aspen.schedule;
 
 import com.herocc.school.aspencheck.AspenCheck;
+import com.herocc.school.aspencheck.JSONReturn;
+import com.herocc.school.aspencheck.ErrorInfo;
 import com.herocc.school.aspencheck.aspen.AspenRestController;
 import com.herocc.school.aspencheck.aspen.AspenWebFetch;
 import org.jsoup.Connection;
@@ -23,16 +25,16 @@ public class AspenScheduleController extends AspenRestController {
   private Schedule schedule;
   
   @RequestMapping("schedule")
-  public ResponseEntity<Schedule> restScheduleHandler(@RequestHeader(value="ASPEN_UNAME", required=false) String u,
+  public JSONReturn restScheduleHandler(@RequestHeader(value="ASPEN_UNAME", required=false) String u,
                                                       @RequestHeader(value="ASPEN_PASS", required=false) String p){
-  
-    if (u != null && p != null) return new ResponseEntity<>(getSchedule(u, p), HttpStatus.OK);
+    
+    if (u != null && p != null) return new JSONReturn(new ResponseEntity<>(getSchedule(u, p), HttpStatus.OK), new ErrorInfo());
     
     if (AspenCheck.getUnixTime() > getNextRefreshTime()) {
       AspenCheck.log.log(Level.INFO, "Refreshing Aspen Schedule, " + String.valueOf(AspenCheck.getUnixTime() + " > " + getNextRefreshTime()));
       new Thread(this::refresh).start();
     }
-    return new ResponseEntity<>(schedule, HttpStatus.OK);
+    return new JSONReturn(new ResponseEntity<>(schedule, HttpStatus.OK), new ErrorInfo());
   }
   
   @Cacheable("publicSchedule")

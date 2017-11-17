@@ -23,7 +23,7 @@ public class CalendarController extends GenericRestController {
   @Getter private List<Event> hsAnnouncementsList = new ArrayList<>();
   
   @RequestMapping()
-  public List<Event> getEvents() {
+  public JSONReturn getEvents() {
     if (AspenCheck.getUnixTime() > getNextRefreshTime()) {
       AspenCheck.log.log(Level.INFO, "Refreshing announcements, " + String.valueOf(AspenCheck.getUnixTime() + " > " + getNextRefreshTime()));
       new Thread(() -> {
@@ -34,7 +34,7 @@ public class CalendarController extends GenericRestController {
         lastRefreshTimestamp = AspenCheck.getUnixTime();
       }).start();
     }
-    return announcements;
+    return new JSONReturn(announcements, new ErrorInfo());
   }
   
   @Cacheable("schoolCalEvents")
